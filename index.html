@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPhysics Pro - Cosmic Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .progress-glow { box-shadow: 0 0 15px rgba(99, 102, 241, 0.5); }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-[#020617] text-slate-100 min-h-screen overflow-x-hidden selection:bg-indigo-500/30">
+
+    <!-- Background Space -->
+    <div class="fixed inset-0 -z-10 bg-[#020617]">
+        <div class="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] rounded-full bg-indigo-900/30 blur-[150px]"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] rounded-full bg-fuchsia-900/20 blur-[150px]"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 px-8 py-6 flex justify-between items-center bg-slate-950/50 backdrop-blur-xl border-b border-white/5">
+        <div class="flex items-center gap-4 cursor-pointer" onclick="showScreen('dashboard')">
+            <div class="bg-gradient-to-br from-indigo-500 to-fuchsia-600 p-3 rounded-2xl shadow-lg rotate-12">
+                <i data-lucide="rocket" class="text-white w-6 h-6"></i>
+            </div>
+            <div>
+                <h1 class="font-black text-2xl tracking-tighter uppercase italic">Kuis <span class="text-indigo-400">Fisika</span></h1>
+                <p class="text-[9px] font-black text-slate-500 tracking-[0.4em] uppercase">Cosmic Academy</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 bg-white/5 px-6 py-3 rounded-full border border-white/10">
+            <i data-lucide="star" class="text-yellow-400 w-4 h-4 fill-current"></i>
+            <span class="text-lg font-black text-white" id="header-points">0 <span class="text-slate-500 text-[10px] ml-1">PTS</span></span>
+        </div>
+    </header>
+
+    <main id="app-container" class="max-w-md mx-auto p-6 pb-32">
+        <!-- Dashboard Screen -->
+        <div id="dashboard" class="screen space-y-10 animate-in">
+            <div class="glass rounded-[3rem] p-10 shadow-2xl relative overflow-hidden">
+                <div class="flex justify-between items-start mb-10">
+                    <div>
+                        <h2 class="text-3xl font-black tracking-tight italic uppercase" id="user-name">Kuis Fisika</h2>
+                        <div class="flex items-center gap-2 mt-2">
+                            <div class="w-2 h-2 rounded-full bg-indigo-500 animate-ping"></div>
+                            <p class="text-indigo-400 text-[10px] font-black uppercase tracking-widest" id="user-level-text">Level 1 Physicist</p>
+                        </div>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-3xl border border-white/10 text-center">
+                        <p class="text-[9px] font-black text-white/40 uppercase mb-1">Total XP</p>
+                        <p class="text-2xl font-black text-white" id="user-xp">0</p>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex justify-between text-[10px] font-black uppercase tracking-widest px-1">
+                        <span class="text-slate-500">Progres Level</span>
+                        <span class="text-indigo-400" id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full bg-black/40 h-4 rounded-full p-1 border border-white/5">
+                        <div id="progress-bar" class="bg-gradient-to-r from-indigo-500 to-fuchsia-600 h-full rounded-full transition-all duration-1000 progress-glow" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <h3 class="font-black text-[10px] text-slate-500 uppercase tracking-[0.4em] pl-2">Kurikulum Standar SMA</h3>
+                <div id="grade-list" class="space-y-4"></div>
+            </div>
+            
+            <div class="space-y-6">
+                <h3 class="font-black text-[10px] text-slate-500 uppercase tracking-[0.4em] pl-2">Badge Pencapaian</h3>
+                <div id="badge-grid" class="grid grid-cols-4 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Quiz Screen -->
+        <div id="quiz-area" class="screen hidden space-y-8">
+            <div id="quiz-progress-container">
+                 <div class="flex justify-between items-center mb-4">
+                  <div class="h-3 flex-1 bg-black/40 rounded-full overflow-hidden p-0.5 border border-white/5 mr-6">
+                    <div id="quiz-bar" class="bg-indigo-500 h-full rounded-full transition-all duration-500 progress-glow" style="width: 0%"></div>
+                  </div>
+                  <p id="quiz-step-text" class="text-[10px] font-black text-indigo-400 tracking-widest whitespace-nowrap">0 / 0</p>
+                </div>
+            </div>
+
+            <div id="question-card" class="glass rounded-[3rem] p-10 border border-white/5 relative">
+                <h2 id="question-text" class="text-2xl font-black mb-12 text-center leading-snug italic uppercase"></h2>
+                <div id="options-grid" class="grid grid-cols-1 gap-4"></div>
+            </div>
+
+            <!-- Feedback Overlay -->
+            <div id="feedback-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md hidden">
+                <div class="text-center w-full max-w-sm">
+                    <div id="feedback-icon-container" class="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl"></div>
+                    <div class="bg-slate-900 border border-white/10 p-8 rounded-[2rem] shadow-2xl">
+                        <h3 id="feedback-title" class="text-2xl font-black mb-4 italic uppercase"></h3>
+                        <div id="wrong-answer-box" class="hidden mb-6 p-4 bg-red-500/10 rounded-xl border border-red-500/20 text-xs text-left">
+                            <span class="text-red-400 font-black block mb-1">Jawaban Benar:</span>
+                            <span id="correct-answer-text" class="text-white font-bold"></span>
+                        </div>
+                        <p id="explanation-text" class="text-slate-400 text-xs leading-relaxed italic mb-8"></p>
+                        <button onclick="nextStep()" class="w-full bg-indigo-600 text-white font-black py-4 rounded-xl shadow-lg active:scale-95 transition-all text-[10px] uppercase tracking-widest">Lanjut</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen hidden text-center py-10">
+            <div class="w-32 h-32 bg-indigo-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-2xl rotate-12 animate-float">
+                <i data-lucide="trophy" class="text-white w-16 h-16"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-4 italic uppercase">Misi Selesai</h2>
+            <p class="text-slate-500 font-black uppercase tracking-widest text-[10px] mb-12">Analisis Performa Berhasil</p>
+            <div class="grid grid-cols-2 gap-4 mb-12">
+                <div class="glass p-6 rounded-3xl">
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">Skor Akurasi</p>
+                    <p id="result-score" class="text-3xl font-black text-indigo-400 italic">0%</p>
+                </div>
+                <div class="glass p-6 rounded-3xl">
+                    <p class="text-[9px] font-black text-slate-500 uppercase mb-1">XP Diperoleh</p>
+                    <p id="result-xp" class="text-3xl font-black text-green-400 italic">+0</p>
+                </div>
+            </div>
+            <button onclick="showScreen('dashboard')" class="w-full bg-white text-slate-950 font-black py-6 rounded-2xl shadow-xl hover:bg-slate-100 transition-all uppercase tracking-[0.3em] text-[10px]">Kembali ke Dashboard</button>
+        </div>
+
+        <!-- Materi View Screen -->
+        <div id="materi-view" class="screen hidden space-y-8">
+            <button onclick="showScreen('bab-list')" class="flex items-center gap-3 text-slate-500 font-black text-[10px] uppercase tracking-widest hover:text-white">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Kembali
+            </button>
+            <div class="glass rounded-[3rem] p-10 shadow-2xl">
+                <h2 id="materi-title" class="text-4xl font-black mb-8 italic tracking-tighter uppercase leading-none"></h2>
+                <div id="materi-content" class="bg-white/5 rounded-3xl p-8 mb-10 border border-white/5 leading-relaxed text-slate-300 text-sm italic font-medium"></div>
+                <button onclick="startQuiz()" class="w-full bg-indigo-600 text-white font-black py-6 rounded-2xl shadow-xl flex items-center justify-center gap-4">Mulai Kuis Fisika <i data-lucide="zap" class="fill-current w-5 h-5"></i></button>
+            </div>
+        </div>
+
+        <!-- Bab List Screen -->
+        <div id="bab-list" class="screen hidden space-y-8">
+            <button onclick="showScreen('dashboard')" class="flex items-center gap-3 text-slate-500 font-black text-[10px] uppercase tracking-widest hover:text-white">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i> Kembali
+            </button>
+            <h2 id="grade-title" class="text-5xl font-black italic tracking-tighter uppercase"></h2>
+            <div id="babs-container" class="grid grid-cols-1 gap-4"></div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profile" class="screen hidden space-y-10">
+            <div class="text-center pt-8">
+                <div class="w-40 h-40 bg-slate-900 rounded-[3rem] flex items-center justify-center mx-auto mb-6 border-4 border-indigo-500 shadow-2xl relative">
+                    <i data-lucide="user" class="text-indigo-400 w-20 h-20"></i>
+                    <div class="absolute -bottom-2 -right-2 bg-fuchsia-600 text-white p-3 rounded-2xl animate-bounce"><i data-lucide="shield-check"></i></div>
+                </div>
+                <h2 class="text-4xl font-black italic tracking-tighter uppercase">Kuis Fisika</h2>
+                <p class="text-indigo-400 font-black uppercase tracking-[0.4em] text-[9px] mt-2">Elite Physicist Rank</p>
+            </div>
+            <div class="glass rounded-[2.5rem] p-8">
+                <h3 class="font-black text-[11px] text-slate-500 uppercase mb-8 tracking-widest flex items-center gap-3">
+                    <i data-lucide="award" class="text-indigo-500"></i> Galeri Badge
+                </h3>
+                <div id="profile-badge-list" class="grid grid-cols-1 gap-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigasi Bawah -->
+    <nav class="fixed bottom-8 left-6 right-6 backdrop-blur-3xl bg-slate-900/50 border border-white/10 p-6 flex justify-around items-center max-w-sm mx-auto shadow-2xl rounded-[2.5rem] z-40 transition-all">
+        <button onclick="showScreen('dashboard')" class="nav-btn flex flex-col items-center gap-2 text-indigo-400 active-nav" id="nav-home">
+            <i data-lucide="layout" stroke-width="2.5"></i>
+            <span class="text-[8px] font-black uppercase tracking-widest">Beranda</span>
+        </button>
+        <button onclick="showScreen('profile')" class="nav-btn flex flex-col items-center gap-2 text-slate-600" id="nav-profile">
+            <i data-lucide="user" stroke-width="2.5"></i>
+            <span class="text-[8px] font-black uppercase tracking-widest">Status</span>
+        </button>
+    </nav>
+
+    <script>
+        // Data & State
+        let userData = {
+            xp: 0,
+            level: 1,
+            points: 0,
+            badges: []
+        };
+
+        const LEVEL_THRESHOLD = 500;
+        let activeGrade = null;
+        let activeBab = null;
+        let currentQuestionIdx = 0;
+        let currentScore = 0;
+
+        const curriculumData = {
+            "Kelas 10": { icon: "wind", color: "cyan", description: "Fondasi Mekanika & Pengukuran", babs: [
+                { id: '10_1', title: "Besaran & Pengukuran", materi: "Fisika dimulai dengan pengamatan dan pengukuran. Besaran Pokok adalah besaran yang satuannya telah ditetapkan terlebih dahulu (Massa, Panjang, Waktu, Suhu, Kuat Arus, Jumlah Zat, Intensitas Cahaya).", quiz: [
+                    { q: "Manakah yang merupakan besaran pokok dalam SI?", options: ["Kecepatan", "Gaya", "Kuat Arus Listrik", "Energi"], correct: 2, explanation: "Kuat arus listrik (Ampere) adalah salah satu dari 7 besaran pokok." },
+                    { q: "Ketelitian alat ukur Mikrometer Sekrup adalah...", options: ["0,1 mm", "0,01 mm", "0,001 mm", "1 cm"], correct: 1, explanation: "Mikrometer sekrup memiliki tingkat presisi hingga 0,01 mm." }
+                ]}
+            ]},
+            "Kelas 11": { icon: "flame", color: "orange", description: "Dinamika Benda Tegar & Fluida", babs: [
+                { id: '11_2', title: "Fluida Statis & Dinamis", materi: "Fluida adalah zat yang mengalir. Tekanan Hidrostatis (P = ρgh) bergantung pada kedalaman. Hukum Archimedes: Gaya angkat = berat fluida yang dipindahkan.", quiz: [
+                    { q: "Tekanan di dasar laut bergantung pada...", options: ["Luas permukaan", "Massa jenis air", "Bentuk wadah", "Waktu"], correct: 1, explanation: "P = rho * g * h. Rho adalah massa jenis." }
+                ]}
+            ]},
+            "Kelas 12": { icon: "atom", color: "fuchsia", description: "Elektromagnetisme & Fisika Modern", babs: [
+                { id: '12_1', title: "Listrik Statis & Dinamis", materi: "Gaya Coulomb (F = k q1q2/r^2). Kapasitor menyimpan muatan (C = Q/V). Hukum Ohm (V = IR).", quiz: [
+                    { q: "Gaya antara dua muatan berbanding terbalik dengan...", options: ["Jarak", "Kuadrat Jarak", "Massa muatan", "Waktu"], correct: 1, explanation: "Hukum Coulomb: F berbanding terbalik dengan r^2." }
+                ]}
+            ]}
+        };
+
+        const availableBadges = [
+            { id: 'b1', name: 'Master Newton', icon: 'target', color: 'cyan', req: 'Lulus Kelas 10' },
+            { id: 'b3', name: 'Quantum Sage', icon: 'atom', color: 'fuchsia', req: 'Lulus Kelas 12' }
+        ];
+
+        // Core Functions
+        function init() {
+            renderDashboard();
+            updateUI();
+            lucide.createIcons();
+        }
+
+        function updateUI() {
+            document.getElementById('header-points').innerHTML = `${userData.points} <span class="text-slate-500 text-[10px] ml-1">PTS</span>`;
+            document.getElementById('user-xp').innerText = userData.xp;
+            document.getElementById('user-level-text').innerText = `Level ${userData.level} Physicist`;
+            
+            const xpInLevel = userData.xp % LEVEL_THRESHOLD;
+            const progress = (xpInLevel / LEVEL_THRESHOLD) * 100;
+            document.getElementById('progress-percent').innerText = `${Math.floor(progress)}%`;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+            
+            // Nav styling
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-indigo-400', 'text-slate-600'));
+            if(screenId === 'dashboard' || screenId === 'bab-list') document.getElementById('nav-home').classList.add('text-indigo-400');
+            if(screenId === 'profile') document.getElementById('nav-profile').classList.add('text-fuchsia-400');
+            
+            if(screenId === 'dashboard') renderDashboard();
+            if(screenId === 'profile') renderProfile();
+            lucide.createIcons();
+        }
+
+        function renderDashboard() {
+            const list = document.getElementById('grade-list');
+            list.innerHTML = '';
+            Object.entries(curriculumData).forEach(([grade, data]) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full glass p-8 rounded-[2.5rem] flex items-center gap-6 hover:bg-slate-800/60 transition-all text-left group shadow-lg";
+                btn.onclick = () => openGrade(grade);
+                btn.innerHTML = `
+                    <div class="p-5 rounded-3xl bg-slate-950 text-${data.color}-400 shadow-xl group-hover:scale-110 transition-transform">
+                        <i data-lucide="${data.icon}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="font-black text-xl tracking-tight uppercase italic">${grade}</h4>
+                        <p class="text-[10px] text-slate-500 font-bold uppercase mt-1">${data.description}</p>
+                    </div>
+                    <i data-lucide="chevron-right" class="text-slate-600"></i>
+                `;
+                list.appendChild(btn);
+            });
+
+            const grid = document.getElementById('badge-grid');
+            grid.innerHTML = '';
+            availableBadges.forEach(badge => {
+                const isOwned = userData.badges.includes(badge.id);
+                grid.innerHTML += `
+                    <div class="aspect-square rounded-2xl flex items-center justify-center border-2 transition-all ${isOwned ? 'bg-indigo-950/40 border-indigo-500 shadow-lg' : 'bg-slate-950/50 border-transparent opacity-20 grayscale'}">
+                        <i data-lucide="${badge.icon}" class="${isOwned ? 'text-'+badge.color+'-400' : 'text-slate-600'}"></i>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        function openGrade(grade) {
+            activeGrade = grade;
+            document.getElementById('grade-title').innerText = grade;
+            const container = document.getElementById('babs-container');
+            container.innerHTML = '';
+            curriculumData[grade].babs.forEach((bab, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "glass p-8 rounded-[2rem] flex items-center gap-6 hover:border-indigo-500/50 transition-all text-left";
+                btn.onclick = () => openMateri(bab);
+                btn.innerHTML = `
+                    <div class="bg-indigo-500/10 w-14 h-14 rounded-2xl flex items-center justify-center text-indigo-400 font-black text-xl">${idx+1}</div>
+                    <div class="flex-1">
+                        <h4 class="font-black text-lg uppercase tracking-tight">${bab.title}</h4>
+                        <p class="text-[9px] font-bold text-slate-500 uppercase">Buka Modul Pembelajaran</p>
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+            showScreen('bab-list');
+        }
+
+        function openMateri(bab) {
+            activeBab = bab;
+            document.getElementById('materi-title').innerText = bab.title;
+            document.getElementById('materi-content').innerText = bab.materi;
+            showScreen('materi-view');
+        }
+
+        function startQuiz() {
+            currentQuestionIdx = 0;
+            currentScore = 0;
+            showScreen('quiz-area');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = activeBab.quiz[currentQuestionIdx];
+            document.getElementById('question-text').innerText = q.q;
+            document.getElementById('quiz-step-text').innerText = `${currentQuestionIdx + 1} / ${activeBab.quiz.length}`;
+            document.getElementById('quiz-bar').style.width = `${((currentQuestionIdx + 1) / activeBab.quiz.length) * 100}%`;
+            
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full p-6 glass rounded-2xl text-left font-black hover:bg-indigo-500/10 hover:border-indigo-500 transition-all text-sm flex items-center gap-4 group";
+                btn.onclick = () => checkAnswer(idx);
+                btn.innerHTML = `
+                    <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-[10px] text-slate-500 group-hover:text-indigo-400 border border-white/5">${String.fromCharCode(65 + idx)}</div>
+                    ${opt}
+                `;
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx) {
+            const q = activeBab.quiz[currentQuestionIdx];
+            const isCorrect = selectedIdx === q.correct;
+            if(isCorrect) currentScore += (100 / activeBab.quiz.length);
+
+            const overlay = document.getElementById('feedback-overlay');
+            const iconCont = document.getElementById('feedback-icon-container');
+            const title = document.getElementById('feedback-title');
+            const explanation = document.getElementById('explanation-text');
+            const wrongBox = document.getElementById('wrong-answer-box');
+
+            overlay.classList.remove('hidden');
+            explanation.innerText = q.explanation;
+
+            if(isCorrect) {
+                iconCont.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl bg-green-500 text-white";
+                iconCont.innerHTML = '<i data-lucide="check" stroke-width="4" class="w-12 h-12"></i>';
+                title.className = "text-2xl font-black mb-4 italic uppercase text-green-400";
+                title.innerText = "Tepat Sekali!";
+                wrongBox.classList.add('hidden');
+            } else {
+                iconCont.className = "w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl bg-red-500 text-white";
+                iconCont.innerHTML = '<i data-lucide="x" stroke-width="4" class="w-12 h-12"></i>';
+                title.className = "text-2xl font-black mb-4 italic uppercase text-red-400";
+                title.innerText = "Kurang Tepat";
+                wrongBox.classList.remove('hidden');
+                document.getElementById('correct-answer-text').innerText = q.options[q.correct];
+            }
+            lucide.createIcons();
+        }
+
+        function nextStep() {
+            document.getElementById('feedback-overlay').classList.add('hidden');
+            if(currentQuestionIdx + 1 < activeBab.quiz.length) {
+                currentQuestionIdx++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            const finalScore = Math.round(currentScore);
+            const xpGained = finalScore + 50;
+            
+            userData.xp += xpGained;
+            userData.points += Math.floor(finalScore / 10);
+            userData.level = Math.floor(userData.xp / LEVEL_THRESHOLD) + 1;
+
+            // Badge Logic
+            if(finalScore >= 80) {
+                if(activeGrade === 'Kelas 10' && !userData.badges.includes('b1')) userData.badges.push('b1');
+                if(activeGrade === 'Kelas 12' && !userData.badges.includes('b3')) userData.badges.push('b3');
+            }
+
+            document.getElementById('result-score').innerText = `${finalScore}%`;
+            document.getElementById('result-xp').innerText = `+${xpGained}`;
+            showScreen('result-screen');
+            updateUI();
+        }
+
+        function renderProfile() {
+            const list = document.getElementById('profile-badge-list');
+            list.innerHTML = '';
+            availableBadges.forEach(badge => {
+                const isOwned = userData.badges.includes(badge.id);
+                list.innerHTML += `
+                    <div class="p-6 rounded-2xl border flex items-center gap-5 transition-all ${isOwned ? 'bg-indigo-500/5 border-indigo-500/30' : 'bg-slate-950/50 border-transparent opacity-30 grayscale'}">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center ${isOwned ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-600'}">
+                            <i data-lucide="${badge.icon}"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-black text-sm uppercase italic">${badge.name}</h4>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase">${isOwned ? 'Telah Diperoleh' : 'Masih Terkunci'}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            lucide.createIcons();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
